@@ -141,6 +141,11 @@ Future-Style-Periodic-Table/
 
 ---
 
+## 📈 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=SeanWong17/Future-Style-Periodic-Table&type=Date)](https://star-history.com/#SeanWong17/Future-Style-Periodic-Table&Date)
+
+---
 <div align="center">
   <sub>Designed with ❤️ by Sean Wong</sub>
 </div>
