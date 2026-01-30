@@ -30,7 +30,7 @@ body {
 .bg-animation {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-    background: 
+    background:
         radial-gradient(circle at 50% 50%, rgba(20, 30, 50, 0.5) 0%, transparent 50%),
         linear-gradient(0deg, rgba(0,243,255,0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,243,255,0.03) 1px, transparent 1px);
@@ -98,6 +98,34 @@ body {
     box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
 }
 
+.language-toggle {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin: 8px 0;
+}
+
+.lang-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #aaa;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.3s;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.lang-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
+.lang-btn.active {
+    background: var(--accent-cyan);
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+}
+
 .search-box {
     width: 100%;
     max-width: 280px;
@@ -158,35 +186,35 @@ body {
     border-color: #fff;
 }
 
-.element .atomic-number { 
-    position: absolute; 
-    top: 4px; 
-    left: 5px; 
+.element .atomic-number {
+    position: absolute;
+    top: 4px;
+    left: 5px;
     font-size: 10px;
-    opacity: 0.6; 
+    opacity: 0.6;
 }
 
-.element .symbol { 
+.element .symbol {
     font-size: 24px;
-    font-weight: 700; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5); 
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     line-height: 1.1;
     margin-top: 4px;
     font-family: Arial, sans-serif;
 }
 
-.element .name { 
-    font-size: 11px; 
-    opacity: 0.95; 
-    margin-top: 0px; 
+.element .name {
+    font-size: 11px;
+    opacity: 0.95;
+    margin-top: 0px;
     font-weight: 500;
 }
 
-.element .detail-val { 
-    position: absolute; bottom: 3px; right: 5px; 
+.element .detail-val {
+    position: absolute; bottom: 3px; right: 5px;
     font-size: 9px;
-    color: var(--accent-cyan); 
-    display: none; 
+    color: var(--accent-cyan);
+    display: none;
     font-weight: bold;
 }
 
@@ -210,7 +238,7 @@ body {
 .element.placeholder:hover {
     background: rgba(255, 255, 255, 0.08);
     border-style: solid;
-    transform: scale(1.05) !important; 
+    transform: scale(1.05) !important;
 }
 
 .periodic-table.heatmap-active .element {
@@ -280,24 +308,24 @@ body {
 
 /* 优化后的关闭按钮 */
 .close-btn {
-    position: absolute; 
-    top: 15px; 
-    right: 15px; 
+    position: absolute;
+    top: 15px;
+    right: 15px;
     font-size: 24px;
-    color: #fff; 
-    cursor: pointer; 
+    color: #fff;
+    cursor: pointer;
     z-index: 2000;
-    width: 36px; 
+    width: 36px;
     height: 36px;
     background: rgba(0, 0, 0, 0.6);
     border-radius: 50%;
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: center;
     border: 1px solid rgba(255,255,255,0.1);
     transition: all 0.2s;
 }
-.close-btn:hover { 
+.close-btn:hover {
     background: rgba(255, 0, 0, 0.8);
     transform: rotate(90deg);
 }
@@ -306,8 +334,8 @@ body {
     width: 35%;
     min-width: 280px;
     background: radial-gradient(circle at center, rgba(0,243,255,0.05), transparent 70%);
-    display: flex; 
-    justify-content: center; 
+    display: flex;
+    justify-content: center;
     align-items: center;
     perspective: 800px;
     border-right: 1px solid rgba(255,255,255,0.05);
@@ -330,7 +358,7 @@ body {
     width: 220px; height: 220px;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.1s linear; 
+    transition: transform 0.1s linear;
 }
 
 .nucleus {
@@ -366,20 +394,20 @@ body {
     z-index: 10;
 }
 
-.info-panel { 
-    flex: 1; 
-    padding: 25px; 
-    display: flex; 
-    flex-direction: column; 
-    overflow-y: auto; 
+.info-panel {
+    flex: 1;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
     min-width: 0;
 }
 
-.header-row { 
-    display: flex; 
-    align-items: baseline; 
-    margin-bottom: 15px; 
-    border-bottom: 1px solid rgba(255,255,255,0.1); 
+.header-row {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
     padding-bottom: 12px;
     flex-wrap: wrap;
     gap: 10px;
@@ -387,14 +415,14 @@ body {
 }
 .big-symbol { font-size: 48px; font-weight: 700; color: var(--accent-cyan); margin-right: 15px; line-height: 1; font-family: Arial;}
 .big-name { font-size: 24px; color: #fff; font-weight: bold; }
-.category-tag { 
-    margin-left: auto; 
-    padding: 5px 10px; 
-    border: 1px solid #444; 
-    border-radius: 6px; 
-    font-size: 12px; 
-    color: #aaa; 
-    text-transform: uppercase; 
+.category-tag {
+    margin-left: auto;
+    padding: 5px 10px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
     white-space: nowrap;
 }
 
@@ -407,10 +435,10 @@ body {
     flex-shrink: 0;
 }
 .config-label { font-size: 12px; color: var(--accent-cyan); margin-bottom: 5px; display: block; font-weight: bold;}
-.config-text { 
-    font-size: 14px; 
-    color: #e0e0e0; 
-    letter-spacing: 1px; 
+.config-text {
+    font-size: 14px;
+    color: #e0e0e0;
+    letter-spacing: 1px;
     word-break: break-all;
     white-space: normal;
     line-height: 1.5;
@@ -430,12 +458,12 @@ body {
     padding-bottom: 5px;
 }
 
-.props-grid { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 10px; 
+.props-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
-.prop-item { 
+.prop-item {
     background: rgba(255,255,255,0.02);
     padding: 8px 10px;
     border-radius: 6px;
@@ -498,24 +526,24 @@ body {
 
 /* === 平板适配 (600px - 900px) === */
 @media(max-width: 900px) {
-    .hologram-card { 
-        flex-direction: column; 
-        max-height: 95vh; 
+    .hologram-card {
+        flex-direction: column;
+        max-height: 95vh;
     }
-    .atom-visualizer { 
-        width: 100%; 
-        min-width: auto; 
-        height: 200px; 
-        border-right: none; 
-        border-bottom: 1px solid #333; 
+    .atom-visualizer {
+        width: 100%;
+        min-width: auto;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid #333;
         flex-shrink: 0;
     }
     .atom-container {
         width: 180px;
         height: 180px;
     }
-    .props-grid { 
-        grid-template-columns: repeat(2, 1fr); 
+    .props-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
     .info-panel {
         padding: 20px;
@@ -641,7 +669,7 @@ body {
     }
 
     .hologram-card {
-        max-height: 100dvh; 
+        max-height: 100dvh;
         height: 100dvh;
         border-radius: 16px 16px 0 0;
         flex-direction: column;
@@ -660,7 +688,7 @@ body {
     .atom-visualizer {
         height: 180px;
         min-height: 180px;
-        padding-top: env(safe-area-inset-top); 
+        padding-top: env(safe-area-inset-top);
     }
 
     .atom-container {
@@ -677,7 +705,7 @@ body {
         padding: 15px 20px;
         flex: 1;
         overflow-y: auto;
-        padding-bottom: 80px; 
+        padding-bottom: 80px;
         -webkit-overflow-scrolling: touch;
     }
 

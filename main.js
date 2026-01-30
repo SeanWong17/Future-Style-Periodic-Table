@@ -6,10 +6,188 @@ const atomContainer = document.getElementById('atomContainer');
 
 // === 状态变量 ===
 let currentActiveCategory = null;
+let currentLanguage = 'zh'; // 'zh' for Chinese, 'en' for English
 let rotX = 0;
 let rotY = 0;
 let isDragging = false;
 let lastMouseX, lastMouseY;
+
+// === 语言相关辅助函数 ===
+function getLocalizedText(key, lang = currentLanguage) {
+    const translations = {
+        zh: {
+            'alkali-metal': '碱金属',
+            'alkaline-earth-metal': '碱土金属',
+            'transition-metal': '过渡金属',
+            'post-transition-metal': '后过渡金属',
+            'metalloid': '类金属',
+            'nonmetal': '非金属',
+            'halogen': '卤素',
+            'noble-gas': '稀有气体',
+            'lanthanide': '镧系',
+            'actinide': '锕系',
+            'lanthanides': '镧系',
+            'actinides': '锕系',
+            'search-placeholder': '查找元素...',
+            'standard': '标准',
+            'radius': '半径',
+            'electronegativity': '电负性',
+            'ionization-energy': '电离能',
+            'melting-point': '熔点',
+            'boiling-point': '沸点',
+            'electron-configuration': '电子排布',
+            'common-oxidation-states': '常见化合价',
+            'physical-properties': '物理性质',
+            'isotopes': '同位素 (● 稳定)',
+            'atomic-number': '原子序数',
+            'atomic-mass': '相对原子质量',
+            'atomic-radius': '原子半径 (pm)',
+            'electronegativity': '电负性',
+            'ionization-energy-kj': '电离能 (kJ/mol)',
+            'melting-point-k': '熔点 (K)',
+            'boiling-point-k': '沸点 (K)',
+            'layers': '分层',
+            'no-data': '暂无数据',
+            'drag-rotate': '拖拽旋转视角',
+        'rotate-hint': '💡 横屏查看效果更佳',
+        'periodic-table-title': '元素周期表'
+        },
+        en: {
+            'alkali-metal': 'Alkali Metal',
+            'alkaline-earth-metal': 'Alkaline Earth Metal',
+            'transition-metal': 'Transition Metal',
+            'post-transition-metal': 'Post-transition Metal',
+            'metalloid': 'Metalloid',
+            'nonmetal': 'Nonmetal',
+            'halogen': 'Halogen',
+            'noble-gas': 'Noble Gas',
+            'lanthanide': 'Lanthanide',
+            'actinide': 'Actinide',
+            'lanthanides': 'Lanthanides',
+            'actinides': 'Actinides',
+            'search-placeholder': 'Search elements...',
+            'standard': 'Standard',
+            'radius': 'Radius',
+            'electronegativity': 'Electronegativity',
+            'ionization-energy': 'Ionization Energy',
+            'melting-point': 'Melting Point',
+            'boiling-point': 'Boiling Point',
+            'electron-configuration': 'Electron Configuration',
+            'common-oxidation-states': 'Common Oxidation States',
+            'physical-properties': 'Physical Properties',
+            'isotopes': 'Isotopes (● Stable)',
+            'atomic-number': 'Atomic Number',
+            'atomic-mass': 'Atomic Mass',
+            'atomic-radius': 'Atomic Radius (pm)',
+            'electronegativity': 'Electronegativity',
+            'ionization-energy-kj': 'Ionization Energy (kJ/mol)',
+            'melting-point-k': 'Melting Point (K)',
+            'boiling-point-k': 'Boiling Point (K)',
+            'layers': 'Layers',
+            'no-data': 'No data',
+            'drag-rotate': 'Drag to rotate view',
+        'rotate-hint': '💡 Better view in landscape mode',
+        'periodic-table-title': 'Periodic Table'
+        }
+    };
+    return translations[lang][key] || key;
+}
+
+function getElementName(element, lang = currentLanguage) {
+    return lang === 'zh' ? element.name : element.enName;
+}
+
+function getCategoryName(category, lang = currentLanguage) {
+    if (lang === 'zh') return category.name;
+
+    // Map Chinese names to English keys
+    const categoryMap = {
+        "碱金属": "alkali-metal",
+        "碱土金属": "alkaline-earth-metal",
+        "过渡金属": "transition-metal",
+        "后过渡金属": "post-transition-metal",
+        "类金属": "metalloid",
+        "非金属": "nonmetal",
+        "卤素": "halogen",
+        "稀有气体": "noble-gas",
+        "镧系": "lanthanide",
+        "锕系": "actinide"
+    };
+
+    const key = categoryMap[category.name];
+    return key ? getLocalizedText(key, lang) : category.name;
+}
+
+// === 渲染图例 ===
+function renderLegend() {
+    legend.innerHTML = '';
+    categories.forEach((c, i) => {
+        const btn = document.createElement('div');
+        btn.className = 'legend-item';
+        btn.innerHTML = `<div class="legend-color" style="background:${c.color}"></div>${getCategoryName(c)}`;
+        btn.onclick = () => toggleCategory(i, btn);
+        legend.appendChild(btn);
+    });
+}
+
+// === 渲染元素表格 ===
+function renderTable() {
+    table.innerHTML = '';
+
+    // 创建元素格子
+    elements.forEach((e, i) => {
+        const [r, c] = getPos(e.idx);
+        const el = document.createElement('div');
+        el.className = 'element';
+        el.style.gridRow = r;
+        el.style.gridColumn = c;
+        el.dataset.idx = e.idx;
+
+        el.style.borderColor = e.cat.color;
+
+        el.innerHTML = `
+            <div class="atomic-number">${e.idx}</div>
+            <div class="symbol" style="color:${e.cat.color}">${e.sym}</div>
+            <div class="name">${getElementName(e)}</div>
+            <div class="detail-val"></div>
+        `;
+        el.onclick = () => showModal(e);
+
+        setTimeout(() => el.classList.add('visible'), i * 5);
+        table.appendChild(el);
+    });
+
+    // 创建镧系/锕系占位符
+    const placeholders = [
+        { row: 6, col: 3, sym: "57-71", name: currentLanguage === 'zh' ? "镧系" : "Lanthanides", catIdx: 8, range: "La - Lu" },
+        { row: 7, col: 3, sym: "89-103", name: currentLanguage === 'zh' ? "锕系" : "Actinides", catIdx: 9, range: "Ac - Lr" }
+    ];
+
+    placeholders.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'element placeholder';
+        el.style.gridRow = p.row;
+        el.style.gridColumn = p.col;
+
+        const color = categories[p.catIdx].color;
+        el.style.borderColor = color;
+
+        el.innerHTML = `
+            <div class="range-num" style="color:${color}">${p.sym}</div>
+            <div class="name">${p.name}</div>
+        `;
+
+        el.onclick = () => {
+            const btns = document.querySelectorAll('.legend-item');
+            if (btns[p.catIdx]) btns[p.catIdx].click();
+        };
+
+        setTimeout(() => el.classList.add('visible'), 600);
+        table.appendChild(el);
+    });
+}
+
+// === 获取元素在周期表中的位置 ===
 
 // === 获取元素在周期表中的位置 ===
 function getPos(n) {
@@ -79,67 +257,8 @@ function getElectronData(Z) {
 
 // === 初始化 ===
 function init() {
-    // 创建图例
-    categories.forEach((c, i) => {
-        const btn = document.createElement('div');
-        btn.className = 'legend-item';
-        btn.innerHTML = `<div class="legend-color" style="background:${c.color}"></div>${c.name}`;
-        btn.onclick = () => toggleCategory(i, btn);
-        legend.appendChild(btn);
-    });
-
-    // 创建元素格子
-    elements.forEach((e, i) => {
-        const [r, c] = getPos(e.idx);
-        const el = document.createElement('div');
-        el.className = 'element';
-        el.style.gridRow = r;
-        el.style.gridColumn = c;
-        el.dataset.idx = e.idx;
-
-        el.style.borderColor = e.cat.color;
-
-        el.innerHTML = `
-            <div class="atomic-number">${e.idx}</div>
-            <div class="symbol" style="color:${e.cat.color}">${e.sym}</div>
-            <div class="name">${e.name}</div>
-            <div class="detail-val"></div>
-        `;
-        el.onclick = () => showModal(e);
-
-        setTimeout(() => el.classList.add('visible'), i * 5);
-        table.appendChild(el);
-    });
-
-    // 创建镧系/锕系占位符
-    const placeholders = [
-        { row: 6, col: 3, sym: "57-71", name: "镧系", catIdx: 8, range: "La - Lu" },
-        { row: 7, col: 3, sym: "89-103", name: "锕系", catIdx: 9, range: "Ac - Lr" }
-    ];
-
-    placeholders.forEach(p => {
-        const el = document.createElement('div');
-        el.className = 'element placeholder';
-        el.style.gridRow = p.row;
-        el.style.gridColumn = p.col;
-
-        const color = categories[p.catIdx].color;
-        el.style.borderColor = color;
-
-        el.innerHTML = `
-            <div class="range-num" style="color:${color}">${p.sym}</div>
-            <div class="name">${p.name}</div>
-        `;
-
-        el.onclick = () => {
-            const btns = document.querySelectorAll('.legend-item');
-            if (btns[p.catIdx]) btns[p.catIdx].click();
-        };
-
-        setTimeout(() => el.classList.add('visible'), 600);
-        table.appendChild(el);
-    });
-
+    renderLegend();
+    renderTable();
     initDragControl();
     initSearch();
     initKeyboard();
@@ -262,6 +381,41 @@ function setMode(mode) {
     });
 }
 
+// === 设置语言 ===
+function setLanguage(lang) {
+    currentLanguage = lang;
+
+    // 更新按钮状态
+    document.getElementById('lang-zh').classList.toggle('active', lang === 'zh');
+    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+    // 更新HTML语言属性
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+    // 更新界面文本
+    document.getElementById('mode-standard').innerText = getLocalizedText('standard');
+    document.getElementById('mode-radius').innerText = getLocalizedText('radius');
+    document.getElementById('mode-electronegativity').innerText = getLocalizedText('electronegativity');
+    document.getElementById('mode-ionization').innerText = getLocalizedText('ionization-energy');
+    document.getElementById('mode-melting').innerText = getLocalizedText('melting-point');
+    document.getElementById('mode-boiling').innerText = getLocalizedText('boiling-point');
+    document.getElementById('searchInput').placeholder = getLocalizedText('search-placeholder');
+    document.getElementById('rotate-hint').innerText = getLocalizedText('rotate-hint');
+    document.getElementById('main-title').innerText = getLocalizedText('periodic-table-title');
+
+    // 重新渲染整个表格和图例
+    renderTable();
+    renderLegend();
+
+    // 如果模态框打开，更新其内容
+    if (modal.classList.contains('open')) {
+        const currentElement = elements.find(e => e.sym === document.getElementById('m-symbol').innerText);
+        if (currentElement) {
+            showModal(currentElement);
+        }
+    }
+}
+
 // === 渲染3D原子模型 ===
 function render3DAtom(Z) {
     atomContainer.innerHTML = '';
@@ -364,11 +518,25 @@ function showModal(data) {
     rotY = 0;
     atomContainer.style.transform = `rotateX(0deg) rotateY(0deg)`;
 
+    // 更新标签文本
+    document.getElementById('electron-config-label').innerText = getLocalizedText('electron-configuration');
+    document.getElementById('valence-label').innerText = getLocalizedText('common-oxidation-states');
+    document.getElementById('properties-label').innerText = getLocalizedText('physical-properties');
+    document.getElementById('isotopes-label').innerText = getLocalizedText('isotopes');
+    document.getElementById('atomic-num-label').innerText = getLocalizedText('atomic-number');
+    document.getElementById('atomic-mass-label').innerText = getLocalizedText('atomic-mass');
+    document.getElementById('atomic-radius-label').innerText = getLocalizedText('atomic-radius');
+    document.getElementById('electronegativity-label').innerText = getLocalizedText('electronegativity');
+    document.getElementById('ionization-energy-label').innerText = getLocalizedText('ionization-energy-kj');
+    document.getElementById('melting-point-label').innerText = getLocalizedText('melting-point-k');
+    document.getElementById('boiling-point-label').innerText = getLocalizedText('boiling-point-k');
+    document.getElementById('visualizer-hint').innerText = getLocalizedText('drag-rotate');
+
     document.getElementById('m-symbol').innerText = data.sym;
     document.getElementById('m-symbol').style.color = data.cat.color;
-    document.getElementById('m-name').innerText = data.name;
-    document.getElementById('m-en-name').innerText = data.enName;
-    document.getElementById('m-cat').innerText = data.cat.name;
+    document.getElementById('m-name').innerText = getElementName(data);
+    document.getElementById('m-en-name').innerText = currentLanguage === 'zh' ? data.enName : data.name;
+    document.getElementById('m-cat').innerText = getCategoryName(data.cat);
     document.getElementById('m-cat').style.borderColor = data.cat.color;
     document.getElementById('m-cat').style.color = data.cat.color;
 
@@ -390,7 +558,7 @@ function showModal(data) {
             valenceContainer.appendChild(tag);
         });
     } else {
-        valenceContainer.innerHTML = '<span style="color:#666">暂无数据</span>';
+        valenceContainer.innerHTML = `<span style="color:#666">${getLocalizedText('no-data')}</span>`;
     }
 
     const isotopeContainer = document.getElementById('m-isotopes');
@@ -403,12 +571,12 @@ function showModal(data) {
             isotopeContainer.appendChild(tag);
         });
     } else {
-        isotopeContainer.innerHTML = '<span style="color:#666">暂无数据</span>';
+        isotopeContainer.innerHTML = `<span style="color:#666">${getLocalizedText('no-data')}</span>`;
     }
 
     const eData = getElectronData(data.idx);
     document.getElementById('m-config-sub').innerHTML = eData.str;
-    document.getElementById('m-config-shell').innerText = `分层: ${eData.shells.join(' - ')}`;
+    document.getElementById('m-config-shell').innerText = `${getLocalizedText('layers')}: ${eData.shells.join(' - ')}`;
 
     render3DAtom(data.idx);
     modal.classList.add('open');

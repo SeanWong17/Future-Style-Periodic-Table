@@ -10,20 +10,25 @@
 
     <div class="bg-animation"></div>
 
-    <div class="rotate-hint">💡 横屏查看效果更佳</div>
+    <div class="rotate-hint" id="rotate-hint">💡 横屏查看效果更佳</div>
 
     <div class="control-panel">
         <div class="title-box">
-            <h1>元素周期表</h1>
+            <h1 id="main-title">元素周期表</h1>
         </div>
         
         <div class="mode-group">
-            <button class="mode-btn active" onclick="setMode('default')">标准</button>
-            <button class="mode-btn" onclick="setMode('radius')">半径</button>
-            <button class="mode-btn" onclick="setMode('en')">电负性</button>
-            <button class="mode-btn" onclick="setMode('ip')">电离能</button>
-            <button class="mode-btn" onclick="setMode('melt')">熔点</button>
-            <button class="mode-btn" onclick="setMode('boil')">沸点</button>
+            <button class="mode-btn active" onclick="setMode('default')" id="mode-standard">标准</button>
+            <button class="mode-btn" onclick="setMode('radius')" id="mode-radius">半径</button>
+            <button class="mode-btn" onclick="setMode('en')" id="mode-electronegativity">电负性</button>
+            <button class="mode-btn" onclick="setMode('ip')" id="mode-ionization">电离能</button>
+            <button class="mode-btn" onclick="setMode('melt')" id="mode-melting">熔点</button>
+            <button class="mode-btn" onclick="setMode('boil')" id="mode-boiling">沸点</button>
+        </div>
+
+        <div class="language-toggle">
+            <button class="lang-btn active" id="lang-zh" onclick="setLanguage('zh')">中文</button>
+            <button class="lang-btn" id="lang-en" onclick="setLanguage('en')">EN</button>
         </div>
 
         <div class="search-box">
@@ -44,7 +49,7 @@
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <div class="atom-visualizer" id="atomWrapper">
                 <div class="atom-container" id="atomContainer"></div>
-                <div class="visualizer-hint">拖拽旋转视角</div>
+                <div class="visualizer-hint" id="visualizer-hint">拖拽旋转视角</div>
             </div>
             <div class="info-panel">
                 <div class="header-row">
@@ -54,31 +59,31 @@
                 </div>
 
                 <div class="config-box">
-                    <label class="config-label">电子排布</label>
+                    <label class="config-label" id="electron-config-label">电子排布</label>
                     <div class="config-text" id="m-config-sub">1s² 2s² ...</div>
                     <div style="margin-top:6px; font-size:12px; color:#888" id="m-config-shell">每层: 2-8-14-2</div>
                 </div>
 
                 <div class="info-section">
-                    <h3>常见化合价</h3>
+                    <h3 id="valence-label">常见化合价</h3>
                     <div class="valence-tags" id="m-valence"></div>
                 </div>
 
                 <div class="info-section">
-                    <h3>物理性质</h3>
+                    <h3 id="properties-label">物理性质</h3>
                     <div class="props-grid">
-                        <div class="prop-item"><label>原子序数</label><span id="m-num">26</span></div>
-                        <div class="prop-item"><label>相对原子质量</label><span id="m-mass">55.845</span></div>
-                        <div class="prop-item"><label>原子半径 (pm)</label><span id="m-radius">126</span></div>
-                        <div class="prop-item"><label>电负性</label><span id="m-en">1.83</span></div>
-                        <div class="prop-item"><label>电离能 (kJ/mol)</label><span id="m-ip">762.5</span></div>
-                        <div class="prop-item"><label>熔点 (K)</label><span id="m-melt">1811</span></div>
-                        <div class="prop-item"><label>沸点 (K)</label><span id="m-boil">3134</span></div>
+                        <div class="prop-item"><label id="atomic-num-label">原子序数</label><span id="m-num">26</span></div>
+                        <div class="prop-item"><label id="atomic-mass-label">相对原子质量</label><span id="m-mass">55.845</span></div>
+                        <div class="prop-item"><label id="atomic-radius-label">原子半径 (pm)</label><span id="m-radius">126</span></div>
+                        <div class="prop-item"><label id="electronegativity-label">电负性</label><span id="m-en">1.83</span></div>
+                        <div class="prop-item"><label id="ionization-energy-label">电离能 (kJ/mol)</label><span id="m-ip">762.5</span></div>
+                        <div class="prop-item"><label id="melting-point-label">熔点 (K)</label><span id="m-melt">1811</span></div>
+                        <div class="prop-item"><label id="boiling-point-label">沸点 (K)</label><span id="m-boil">3134</span></div>
                     </div>
                 </div>
 
                 <div class="info-section">
-                    <h3>同位素 (● 稳定)</h3>
+                    <h3 id="isotopes-label">同位素 (● 稳定)</h3>
                     <div class="isotope-tags" id="m-isotopes"></div>
                 </div>
             </div>
