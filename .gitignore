@@ -1,6 +1,5 @@
 # 依赖
 node_modules/
-package-lock.json
 yarn.lock
 
 # 编辑器
