@@ -2,16 +2,18 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="支持中英文、热力图和交互式原子模型的元素周期表。">
     <title>宇宙的5%</title>
     <link rel="canonical" href="https://seanwong17.github.io/Future-Style-Periodic-Table/" />
-  <script type="module" crossorigin src="/Future-Style-Periodic-Table/assets/index-LczRtWpo.js"></script>
-  <link rel="stylesheet" crossorigin href="/Future-Style-Periodic-Table/assets/index-DBXMcZQy.css">
+  <script type="module" crossorigin src="./assets/index-D67twcmp.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CeJkRRve.css">
 </head>
 <body>
 
-    <div class="bg-animation"></div>
+    <div class="bg-animation" aria-hidden="true"></div>
 
+    <main class="app-content" id="app-content">
     <div class="rotate-hint" id="rotate-hint">💡 横屏查看效果更佳</div>
 
     <div class="control-panel">
@@ -19,6 +21,7 @@
             <h1 id="main-title">元素周期表</h1>
             <a href="https://github.com/SeanWong17/Future-Style-Periodic-Table" 
             target="_blank" 
+            rel="noopener noreferrer"
             class="github-silent-link" 
             title="View on GitHub">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
@@ -27,42 +30,44 @@
             </a>
         </div>
         
-        <div class="mode-group">
-            <button class="mode-btn active" data-mode="default" id="mode-standard">标准</button>
-            <button class="mode-btn" data-mode="radius" id="mode-radius">半径</button>
-            <button class="mode-btn" data-mode="en" id="mode-electronegativity">电负性</button>
-            <button class="mode-btn" data-mode="ip" id="mode-ionization">电离能</button>
-            <button class="mode-btn" data-mode="melt" id="mode-melting">熔点</button>
-            <button class="mode-btn" data-mode="boil" id="mode-boiling">沸点</button>
-            <button class="mode-btn" data-mode="density" id="mode-density">密度</button>
+        <div class="mode-group" role="group">
+            <button type="button" class="mode-btn active" data-mode="default" id="mode-standard" aria-pressed="true">标准</button>
+            <button type="button" class="mode-btn" data-mode="radius" id="mode-radius" aria-pressed="false">半径</button>
+            <button type="button" class="mode-btn" data-mode="en" id="mode-electronegativity" aria-pressed="false">电负性</button>
+            <button type="button" class="mode-btn" data-mode="ip" id="mode-ionization" aria-pressed="false">电离能</button>
+            <button type="button" class="mode-btn" data-mode="melt" id="mode-melting" aria-pressed="false">熔点</button>
+            <button type="button" class="mode-btn" data-mode="boil" id="mode-boiling" aria-pressed="false">沸点</button>
+            <button type="button" class="mode-btn" data-mode="density" id="mode-density" aria-pressed="false">密度</button>
         </div>
 
-        <div class="language-toggle">
-            <button class="lang-btn active" id="lang-zh">中文</button>
-            <button class="lang-btn" id="lang-en">EN</button>
+        <div class="language-toggle" role="group">
+            <button type="button" class="lang-btn active" id="lang-zh" aria-pressed="true">中文</button>
+            <button type="button" class="lang-btn" id="lang-en" aria-pressed="false">EN</button>
         </div>
 
         <div class="search-box">
+            <label class="sr-only" id="search-label" for="searchInput">查找元素</label>
             <input type="text" id="searchInput" placeholder="查找元素...">
         </div>
     </div>
 
     <div class="legend-wrapper">
-        <div class="legend" id="legend"></div>
+        <div class="legend" id="legend" role="group"></div>
     </div>
 
     <div class="table-wrapper">
-        <div class="periodic-table" id="table"></div>
+        <div class="periodic-table" id="table" role="region"></div>
     </div>
+    </main>
 
     <!-- 主信息弹窗 -->
-    <div class="modal-overlay" id="modal">
-        <div class="hologram-card">
-            <span class="close-btn">&times;</span>
+    <div class="modal-overlay" id="modal" aria-hidden="true" inert>
+        <div class="hologram-card" role="dialog" aria-modal="true" aria-labelledby="m-name" tabindex="-1">
+            <button type="button" class="close-btn" id="modal-close">&times;</button>
             
             <!-- 左侧：原子可视化 -->
-            <div class="atom-visualizer" id="atomWrapper">
-                <button class="expand-btn" title="放大查看">
+            <div class="atom-visualizer" id="atomWrapper" tabindex="0">
+                <button type="button" class="expand-btn" title="放大查看">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
                     </svg>
@@ -95,18 +100,18 @@
                 </div>
 
                 <!-- 标签页导航 -->
-                <div class="tab-nav">
-                    <button class="tab-btn active" id="tab-basic">基础</button>
-                    <button class="tab-btn" id="tab-physical">物理</button>
-                    <button class="tab-btn" id="tab-chemical">化学</button>
-                    <button class="tab-btn" id="tab-history">历史</button>
-                    <button class="tab-btn" id="tab-media">媒体</button>
+                <div class="tab-nav" role="tablist">
+                    <button type="button" class="tab-btn active" id="tab-basic" role="tab" aria-selected="true" aria-controls="pane-basic">基础</button>
+                    <button type="button" class="tab-btn" id="tab-physical" role="tab" aria-selected="false" aria-controls="pane-physical" tabindex="-1">物理</button>
+                    <button type="button" class="tab-btn" id="tab-chemical" role="tab" aria-selected="false" aria-controls="pane-chemical" tabindex="-1">化学</button>
+                    <button type="button" class="tab-btn" id="tab-history" role="tab" aria-selected="false" aria-controls="pane-history" tabindex="-1">历史</button>
+                    <button type="button" class="tab-btn" id="tab-media" role="tab" aria-selected="false" aria-controls="pane-media" tabindex="-1">媒体</button>
                 </div>
 
                 <!-- 标签页内容 -->
                 <div class="tab-content">
                     <!-- 基础信息 -->
-                    <div class="tab-pane active" id="pane-basic">
+                    <div class="tab-pane active" id="pane-basic" role="tabpanel" aria-labelledby="tab-basic">
                         <div class="info-section">
                             <h3 id="electron-config-label">电子排布</h3>
                             <div class="config-box">
@@ -138,7 +143,7 @@
                     </div>
 
                     <!-- 物理性质 -->
-                    <div class="tab-pane" id="pane-physical">
+                    <div class="tab-pane" id="pane-physical" role="tabpanel" aria-labelledby="tab-physical" hidden>
                         <div class="info-section">
                             <h3 id="appearance-label">外观</h3>
                             <p class="appearance-text" id="m-appearance"></p>
@@ -158,7 +163,7 @@
                     </div>
 
                     <!-- 化学性质 -->
-                    <div class="tab-pane" id="pane-chemical">
+                    <div class="tab-pane" id="pane-chemical" role="tabpanel" aria-labelledby="tab-chemical" hidden>
                         <div class="info-section">
                             <h3 id="chemical-props-label">化学性质</h3>
                             <div class="props-grid">
@@ -174,7 +179,7 @@
                     </div>
 
                     <!-- 历史发现 -->
-                    <div class="tab-pane" id="pane-history">
+                    <div class="tab-pane" id="pane-history" role="tabpanel" aria-labelledby="tab-history" hidden>
                         <div class="info-section">
                             <h3 id="discovery-label">发现</h3>
                             <div class="history-item">
@@ -189,7 +194,7 @@
 
                         <div class="info-section">
                             <h3 id="source-label">参考资料</h3>
-                            <a class="source-link" id="m-source" href="#" target="_blank">
+                            <a class="source-link" id="m-source" href="#" target="_blank" rel="noopener noreferrer">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                                     <polyline points="15 3 21 3 21 9"/>
@@ -201,7 +206,7 @@
                     </div>
 
                     <!-- 媒体资源 -->
-                    <div class="tab-pane" id="pane-media">
+                    <div class="tab-pane" id="pane-media" role="tabpanel" aria-labelledby="tab-media" hidden>
                         <!-- 实物图片 -->
                         <div class="info-section">
                             <h3 id="image-label">实物图片</h3>
@@ -215,7 +220,7 @@
                                     <span id="load-image-text">加载实物图片</span>
                                 </button>
                                 <div class="image-display" id="image-display" style="display:none;">
-                                    <img id="element-image" src="" alt="">
+                                    <img id="element-image" src="" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
                                     <p class="image-caption" id="image-caption"></p>
                                 </div>
                             </div>
@@ -234,7 +239,7 @@
                                     <span id="load-bohr-image-text">加载玻尔模型图</span>
                                 </button>
                                 <div class="image-display" id="bohr-image-display" style="display:none;">
-                                    <img id="bohr-image" src="" alt="">
+                                    <img id="bohr-image" src="" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
                                 </div>
                             </div>
                         </div>
@@ -245,14 +250,14 @@
     </div>
 
     <!-- 放大原子视图弹窗 -->
-    <div class="expanded-atom-overlay" id="expandedAtomModal">
-        <div class="expanded-atom-card">
-            <span class="close-btn">&times;</span>
+    <div class="expanded-atom-overlay" id="expandedAtomModal" aria-hidden="true" inert>
+        <div class="expanded-atom-card" role="dialog" aria-modal="true" aria-labelledby="expanded-name" tabindex="-1">
+            <button type="button" class="close-btn" id="expanded-close">&times;</button>
             <div class="expanded-atom-header">
                 <span class="expanded-atom-symbol" id="expanded-symbol">Fe</span>
                 <span class="expanded-atom-name" id="expanded-name">铁 Iron</span>
             </div>
-            <div class="expanded-atom-wrapper" id="expandedAtomWrapper">
+            <div class="expanded-atom-wrapper" id="expandedAtomWrapper" tabindex="0">
                 <div class="expanded-atom-container" id="expandedAtomContainer"></div>
             </div>
             <div class="expanded-atom-info">
