@@ -3,6 +3,9 @@ import { getElementName } from '../i18n';
 import { showModal } from './modal';
 import { t } from '../i18n';
 import { categories } from '../config/categories';
+import { applyTableView } from './heatmap';
+
+let revealTimeouts: Array<ReturnType<typeof setTimeout>> = [];
 
 export function getPos(n: number): [number, number] {
   if (n === 1) return [1, 1];
@@ -25,16 +28,24 @@ export function getPos(n: number): [number, number] {
 export function renderTable(): void {
   const state = getState();
   const table = document.getElementById('table')!;
+  revealTimeouts.forEach(clearTimeout);
+  revealTimeouts = [];
   table.textContent = '';
 
   state.elements.forEach((e, i) => {
     const [r, c] = getPos(e.idx);
-    const el = document.createElement('div');
+    const el = document.createElement('button');
+    el.type = 'button';
     el.className = 'element';
     el.style.gridRow = String(r);
     el.style.gridColumn = String(c);
     el.dataset.idx = String(e.idx);
     el.style.borderColor = e.cat.color;
+    el.setAttribute('aria-label', t('element-button-label', {
+      name: getElementName(e),
+      symbol: e.sym,
+      number: e.idx,
+    }));
 
     const numDiv = document.createElement('div');
     numDiv.className = 'atomic-number';
@@ -58,7 +69,7 @@ export function renderTable(): void {
     el.appendChild(detailDiv);
     el.addEventListener('click', () => showModal(e));
 
-    setTimeout(() => el.classList.add('visible'), i * 5);
+    revealTimeouts.push(setTimeout(() => el.classList.add('visible'), i * 5));
     table.appendChild(el);
   });
 
@@ -68,10 +79,13 @@ export function renderTable(): void {
   ];
 
   placeholders.forEach(p => {
-    const el = document.createElement('div');
+    const el = document.createElement('button');
+    el.type = 'button';
     el.className = 'element placeholder';
     el.style.gridRow = String(p.row);
     el.style.gridColumn = String(p.col);
+    el.dataset.catId = String(p.catIdx);
+    el.setAttribute('aria-label', p.name);
 
     const color = categories[p.catIdx].color;
     el.style.borderColor = color;
@@ -93,7 +107,9 @@ export function renderTable(): void {
       if (btns[p.catIdx]) (btns[p.catIdx] as HTMLElement).click();
     });
 
-    setTimeout(() => el.classList.add('visible'), 600);
+    revealTimeouts.push(setTimeout(() => el.classList.add('visible'), 600));
     table.appendChild(el);
   });
+
+  applyTableView();
 }

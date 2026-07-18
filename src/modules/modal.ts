@@ -3,9 +3,14 @@ import { t, getElementName, updateElementTranslations, updateElementTexts } from
 import { formatValue } from '../utils/dom';
 import { getElectronData } from '../config/electron';
 import { getCategoryName } from '../i18n';
-import { render3DAtom } from './atom3d';
+import { cancelAtomAnimations, render3DAtom } from './atom3d';
 import { resetMediaContainers, updateMediaButtonState } from './media';
 import type { Element } from '../types/element';
+import { TabId } from '../types/app';
+
+let atomCleanupTimeout: ReturnType<typeof setTimeout> | null = null;
+let lastFocusedElement: HTMLElement | null = null;
+let previousBodyOverflow = '';
 
 function clearAllTimeouts(): void {
   const state = getState();
@@ -19,19 +24,40 @@ function clearAllTimeouts(): void {
   }
 }
 
-export function switchTab(tabId: string): void {
+export function switchTab(tabId: TabId): void {
+  if (!Object.values(TabId).includes(tabId)) return;
+
   const state = getState();
   state.currentTab = tabId;
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-  document.getElementById(`tab-${tabId}`)?.classList.add('active');
-  document.getElementById(`pane-${tabId}`)?.classList.add('active');
+  document.querySelectorAll<HTMLElement>('.tab-btn').forEach(btn => {
+    const active = btn.id === `tab-${tabId}`;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', String(active));
+    btn.tabIndex = active ? 0 : -1;
+  });
+  document.querySelectorAll<HTMLElement>('.tab-pane').forEach(pane => {
+    const active = pane.id === `pane-${tabId}`;
+    pane.classList.toggle('active', active);
+    pane.hidden = !active;
+  });
 }
 
 export function showModal(data: Element): void {
   const state = getState();
   const modal = document.getElementById('modal')!;
   const atomContainer = document.getElementById('atomContainer')!;
+  const wasOpen = modal.classList.contains('open');
+
+  if (atomCleanupTimeout) {
+    clearTimeout(atomCleanupTimeout);
+    atomCleanupTimeout = null;
+  }
+  if (!wasOpen) {
+    lastFocusedElement = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    previousBodyOverflow = document.body.style.overflow;
+  }
 
   state.currentElementZ = data.idx;
   state.currentElementData = data;
@@ -43,6 +69,23 @@ export function showModal(data: Element): void {
   state.currentImageUrl = null;
   state.currentBohrImageUrl = null;
   resetMediaContainers();
+
+  renderModalContent(data);
+
+  render3DAtom(data.idx);
+  switchTab(TabId.Basic);
+  modal.inert = false;
+  modal.setAttribute('aria-hidden', 'false');
+  modal.classList.add('open');
+  const appContent = document.getElementById('app-content')!;
+  appContent.inert = true;
+  appContent.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = 'hidden';
+  document.querySelector<HTMLElement>('.hologram-card')!.focus({ preventScroll: true });
+}
+
+function renderModalContent(data: Element): void {
+  const state = getState();
 
   updateElementTranslations({
     'tab-basic': 'tab-basic',
@@ -89,10 +132,22 @@ export function showModal(data: Element): void {
   renderMediaTab(data);
 
   document.getElementById('visualizer-hint')!.textContent = t('drag-rotate');
-  render3DAtom(data.idx);
-  switchTab('basic');
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.getElementById('atomWrapper')!.setAttribute('aria-label', t('atom-controls'));
+  const expandButton = document.querySelector<HTMLElement>('.expand-btn')!;
+  expandButton.setAttribute('aria-label', t('expand-atom'));
+  expandButton.setAttribute('title', t('expand-atom'));
+  document.getElementById('modal-close')!.setAttribute('aria-label', t('close'));
+  (document.getElementById('element-image') as HTMLImageElement).alt =
+    t('element-image-alt', { name: getElementName(data) });
+  (document.getElementById('bohr-image') as HTMLImageElement).alt =
+    t('bohr-image-alt', { name: getElementName(data) });
+}
+
+export function refreshModal(): void {
+  const state = getState();
+  if (!state.currentElementData) return;
+  renderModalContent(state.currentElementData);
+  switchTab(state.currentTab);
 }
 
 function renderBasicTab(data: Element): void {
@@ -212,7 +267,7 @@ function renderChemicalTab(data: Element): void {
       if (idx === 0) label = t('ionization-first');
       else if (idx === 1) label = t('ionization-second');
       else if (idx === 2) label = t('ionization-third');
-      else label = t('ionization-nth').replace('{n}', String(idx + 1));
+      else label = t('ionization-nth', { n: idx + 1 });
 
       const labelSpan = document.createElement('span');
       labelSpan.className = 'ion-label';
@@ -274,12 +329,28 @@ export function closeModal(): void {
   const modal = document.getElementById('modal')!;
   const atomContainer = document.getElementById('atomContainer')!;
 
+  if (!modal.classList.contains('open')) return;
+
   modal.classList.remove('open');
-  document.body.style.overflow = '';
+  modal.setAttribute('aria-hidden', 'true');
+  modal.inert = true;
+  const appContent = document.getElementById('app-content')!;
+  appContent.inert = false;
+  appContent.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = previousBodyOverflow;
 
   clearAllTimeouts();
   state.currentImageUrl = null;
   state.currentBohrImageUrl = null;
 
-  setTimeout(() => { atomContainer.textContent = ''; }, 300);
+  atomCleanupTimeout = setTimeout(() => {
+    if (!modal.classList.contains('open')) {
+      cancelAtomAnimations(atomContainer);
+      atomContainer.textContent = '';
+    }
+    atomCleanupTimeout = null;
+  }, 300);
+
+  lastFocusedElement?.focus({ preventScroll: true });
+  lastFocusedElement = null;
 }

@@ -4,7 +4,7 @@ import { t } from '../i18n';
 const LOAD_TIMEOUT = 5000;
 
 export function resetMediaContainers(): void {
-  const imageBtn = document.getElementById('load-image-btn')!;
+  const imageBtn = document.getElementById('load-image-btn') as HTMLButtonElement;
   const img = document.getElementById('element-image') as HTMLImageElement;
 
   img.onload = null;
@@ -12,9 +12,11 @@ export function resetMediaContainers(): void {
   img.src = '';
   imageBtn.style.display = 'flex';
   imageBtn.classList.remove('loading', 'error', 'disabled');
+  imageBtn.disabled = false;
+  imageBtn.setAttribute('aria-busy', 'false');
   document.getElementById('image-display')!.style.display = 'none';
 
-  const bohrBtn = document.getElementById('load-bohr-image-btn')!;
+  const bohrBtn = document.getElementById('load-bohr-image-btn') as HTMLButtonElement;
   const bohrImg = document.getElementById('bohr-image') as HTMLImageElement;
 
   bohrImg.onload = null;
@@ -22,6 +24,8 @@ export function resetMediaContainers(): void {
   bohrImg.src = '';
   bohrBtn.style.display = 'flex';
   bohrBtn.classList.remove('loading', 'error', 'disabled');
+  bohrBtn.disabled = false;
+  bohrBtn.setAttribute('aria-busy', 'false');
   document.getElementById('bohr-image-display')!.style.display = 'none';
 }
 
@@ -31,20 +35,24 @@ export function updateMediaButtonState(
   resourceUrl: string | null,
   defaultText: string
 ): void {
-  const btn = document.getElementById(btnId)!;
+  const btn = document.getElementById(btnId) as HTMLButtonElement;
   const textSpan = document.getElementById(textId)!;
   if (!resourceUrl) {
     btn.classList.add('disabled');
+    btn.disabled = true;
     textSpan.textContent = t('no-resource');
   } else {
     btn.classList.remove('disabled');
+    btn.disabled = false;
     textSpan.textContent = defaultText;
   }
 }
 
-function setButtonError(btn: HTMLElement, textSpan: HTMLElement, message: string): void {
+function setButtonError(btn: HTMLButtonElement, textSpan: HTMLElement, message: string): void {
   btn.classList.remove('loading');
   btn.classList.add('error');
+  btn.disabled = false;
+  btn.setAttribute('aria-busy', 'false');
   textSpan.textContent = message;
 }
 
@@ -53,17 +61,19 @@ export function loadElementImage(): void {
   const imageUrl = state.currentElementData?.image?.url;
   if (!imageUrl) return;
 
-  const btn = document.getElementById('load-image-btn')!;
+  const btn = document.getElementById('load-image-btn') as HTMLButtonElement;
   const textSpan = document.getElementById('load-image-text')!;
   const display = document.getElementById('image-display')!;
   const img = document.getElementById('element-image') as HTMLImageElement;
   const caption = document.getElementById('image-caption')!;
 
-  if (btn.classList.contains('disabled') || btn.classList.contains('loading')) return;
+  if (btn.disabled || btn.classList.contains('loading')) return;
 
   btn.classList.remove('error');
   textSpan.textContent = t('loading');
   btn.classList.add('loading');
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
 
   state.currentImageUrl = imageUrl;
 
@@ -76,6 +86,7 @@ export function loadElementImage(): void {
       img.onload = null;
       img.onerror = null;
       img.src = '';
+      state.imageTimeout = null;
       setButtonError(btn, textSpan, t('load-timeout'));
     }
   }, LOAD_TIMEOUT);
@@ -87,6 +98,7 @@ export function loadElementImage(): void {
       state.imageTimeout = null;
     }
     btn.style.display = 'none';
+    btn.setAttribute('aria-busy', 'false');
     display.style.display = 'block';
     caption.textContent = state.currentElementData?.image?.title || '';
   };
@@ -108,16 +120,18 @@ export function loadBohrImage(): void {
   const bohrUrl = state.currentElementData?.bohrModelImage;
   if (!bohrUrl) return;
 
-  const btn = document.getElementById('load-bohr-image-btn')!;
+  const btn = document.getElementById('load-bohr-image-btn') as HTMLButtonElement;
   const textSpan = document.getElementById('load-bohr-image-text')!;
   const display = document.getElementById('bohr-image-display')!;
   const img = document.getElementById('bohr-image') as HTMLImageElement;
 
-  if (btn.classList.contains('disabled') || btn.classList.contains('loading')) return;
+  if (btn.disabled || btn.classList.contains('loading')) return;
 
   btn.classList.remove('error');
   textSpan.textContent = t('loading');
   btn.classList.add('loading');
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
 
   state.currentBohrImageUrl = bohrUrl;
 
@@ -130,6 +144,7 @@ export function loadBohrImage(): void {
       img.onload = null;
       img.onerror = null;
       img.src = '';
+      state.bohrImageTimeout = null;
       setButtonError(btn, textSpan, t('load-timeout'));
     }
   }, LOAD_TIMEOUT);
@@ -141,6 +156,7 @@ export function loadBohrImage(): void {
       state.bohrImageTimeout = null;
     }
     btn.style.display = 'none';
+    btn.setAttribute('aria-busy', 'false');
     display.style.display = 'block';
   };
 

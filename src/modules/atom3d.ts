@@ -2,11 +2,27 @@ import { getState } from '../state';
 import { getElectronData } from '../config/electron';
 import { t } from '../i18n';
 
+let expandedCleanupTimeout: ReturnType<typeof setTimeout> | null = null;
+let expandedLastFocusedElement: HTMLElement | null = null;
+
+function clampScale(value: number): number {
+  return Math.max(0.5, Math.min(2, value));
+}
+
+function updateAtomTransform(container: HTMLElement, rotX: number, rotY: number, scale = 1): void {
+  container.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${scale})`;
+}
+
+export function cancelAtomAnimations(container: HTMLElement): void {
+  container.getAnimations?.({ subtree: true }).forEach(animation => animation.cancel());
+}
+
 export function render3DAtom(
   Z: number,
   container: HTMLElement = document.getElementById('atomContainer')!,
   scale = 1
 ): number[] {
+  cancelAtomAnimations(container);
   container.textContent = '';
 
   const nucleus = document.createElement('div');
@@ -40,13 +56,15 @@ export function render3DAtom(
     orbit.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
 
     const animDuration = 5 + idx * 2;
-    orbit.animate(
-      [
-        { transform: `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(0deg)` },
-        { transform: `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(360deg)` },
-      ],
-      { duration: animDuration * 1000, iterations: Infinity, easing: 'linear' }
-    );
+    if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      orbit.animate(
+        [
+          { transform: `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(0deg)` },
+          { transform: `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(360deg)` },
+        ],
+        { duration: animDuration * 1000, iterations: Infinity, easing: 'linear' }
+      );
+    }
 
     for (let i = 0; i < count; i++) {
       const electron = document.createElement('div');
@@ -67,45 +85,49 @@ export function initDragControl(): void {
   const wrapper = document.getElementById('atomWrapper')!;
   const atomContainer = document.getElementById('atomContainer')!;
 
-  wrapper.addEventListener('mousedown', (e: MouseEvent) => {
+  let activePointerId: number | null = null;
+
+  wrapper.addEventListener('pointerdown', (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('.expand-btn')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    activePointerId = e.pointerId;
+    wrapper.setPointerCapture(e.pointerId);
     state.isDragging = true;
     state.lastMouseX = e.clientX;
     state.lastMouseY = e.clientY;
   });
 
-  window.addEventListener('mousemove', (e: MouseEvent) => {
-    if (!state.isDragging) return;
+  wrapper.addEventListener('pointermove', (e: PointerEvent) => {
+    if (!state.isDragging || e.pointerId !== activePointerId) return;
     const dx = e.clientX - state.lastMouseX;
     const dy = e.clientY - state.lastMouseY;
     state.rotY += dx * 0.5;
     state.rotX -= dy * 0.5;
-    atomContainer.style.transform = `rotateX(${state.rotX}deg) rotateY(${state.rotY}deg)`;
+    updateAtomTransform(atomContainer, state.rotX, state.rotY);
     state.lastMouseX = e.clientX;
     state.lastMouseY = e.clientY;
   });
 
-  window.addEventListener('mouseup', () => { state.isDragging = false; });
+  const finishDrag = (e: PointerEvent): void => {
+    if (e.pointerId !== activePointerId) return;
+    state.isDragging = false;
+    activePointerId = null;
+    if (wrapper.hasPointerCapture(e.pointerId)) wrapper.releasePointerCapture(e.pointerId);
+  };
+  wrapper.addEventListener('pointerup', finishDrag);
+  wrapper.addEventListener('pointercancel', finishDrag);
 
-  wrapper.addEventListener('touchstart', (e: TouchEvent) => {
-    if ((e.target as HTMLElement).closest('.expand-btn')) return;
-    state.isDragging = true;
-    state.lastMouseX = e.touches[0].clientX;
-    state.lastMouseY = e.touches[0].clientY;
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e: TouchEvent) => {
-    if (!state.isDragging) return;
-    const dx = e.touches[0].clientX - state.lastMouseX;
-    const dy = e.touches[0].clientY - state.lastMouseY;
-    state.rotY += dx * 0.8;
-    state.rotX -= dy * 0.8;
-    atomContainer.style.transform = `rotateX(${state.rotX}deg) rotateY(${state.rotY}deg)`;
-    state.lastMouseX = e.touches[0].clientX;
-    state.lastMouseY = e.touches[0].clientY;
-  }, { passive: true });
-
-  window.addEventListener('touchend', () => { state.isDragging = false; });
+  wrapper.addEventListener('keydown', event => {
+    if ((event.target as HTMLElement).closest('.expand-btn')) return;
+    const delta = 10;
+    if (event.key === 'ArrowUp') state.rotX -= delta;
+    else if (event.key === 'ArrowDown') state.rotX += delta;
+    else if (event.key === 'ArrowLeft') state.rotY -= delta;
+    else if (event.key === 'ArrowRight') state.rotY += delta;
+    else return;
+    event.preventDefault();
+    updateAtomTransform(atomContainer, state.rotX, state.rotY);
+  });
 }
 
 export function initExpandedDragControl(): void {
@@ -114,59 +136,104 @@ export function initExpandedDragControl(): void {
   const expandedAtomContainer = document.getElementById('expandedAtomContainer')!;
   const expandedAtomModal = document.getElementById('expandedAtomModal')!;
 
-  wrapper.addEventListener('mousedown', (e: MouseEvent) => {
-    state.isExpandedDragging = true;
-    state.expandedLastMouseX = e.clientX;
-    state.expandedLastMouseY = e.clientY;
+  const pointers = new Map<number, { x: number; y: number }>();
+  let pinchDistance: number | null = null;
+
+  const getPinchDistance = (): number => {
+    const [first, second] = Array.from(pointers.values());
+    return Math.hypot(second.x - first.x, second.y - first.y);
+  };
+
+  wrapper.addEventListener('pointerdown', (e: PointerEvent) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    wrapper.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     wrapper.style.cursor = 'grabbing';
+
+    if (pointers.size === 1) {
+      state.isExpandedDragging = true;
+      state.expandedLastMouseX = e.clientX;
+      state.expandedLastMouseY = e.clientY;
+    } else if (pointers.size === 2) {
+      state.isExpandedDragging = false;
+      pinchDistance = getPinchDistance();
+    }
   });
 
-  window.addEventListener('mousemove', (e: MouseEvent) => {
-    if (!state.isExpandedDragging) return;
-    const dx = e.clientX - state.expandedLastMouseX;
-    const dy = e.clientY - state.expandedLastMouseY;
-    state.expandedRotY += dx * 0.5;
-    state.expandedRotX -= dy * 0.5;
-    expandedAtomContainer.style.transform =
-      `rotateX(${state.expandedRotX}deg) rotateY(${state.expandedRotY}deg) scale(${state.expandedScale})`;
-    state.expandedLastMouseX = e.clientX;
-    state.expandedLastMouseY = e.clientY;
+  wrapper.addEventListener('pointermove', (e: PointerEvent) => {
+    const previous = pointers.get(e.pointerId);
+    if (!previous || !expandedAtomModal.classList.contains('open')) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size >= 2) {
+      const nextDistance = getPinchDistance();
+      if (pinchDistance && pinchDistance > 0) {
+        state.expandedScale = clampScale(state.expandedScale * (nextDistance / pinchDistance));
+      }
+      pinchDistance = nextDistance;
+    } else if (state.isExpandedDragging) {
+      state.expandedRotY += (e.clientX - previous.x) * 0.5;
+      state.expandedRotX -= (e.clientY - previous.y) * 0.5;
+    }
+    updateAtomTransform(
+      expandedAtomContainer,
+      state.expandedRotX,
+      state.expandedRotY,
+      state.expandedScale
+    );
   });
 
-  window.addEventListener('mouseup', () => {
-    state.isExpandedDragging = false;
-    wrapper.style.cursor = 'grab';
-  });
+  const finishPointer = (e: PointerEvent): void => {
+    pointers.delete(e.pointerId);
+    if (wrapper.hasPointerCapture(e.pointerId)) wrapper.releasePointerCapture(e.pointerId);
+    pinchDistance = pointers.size >= 2 ? getPinchDistance() : null;
+    const remaining = pointers.values().next().value as { x: number; y: number } | undefined;
+    state.isExpandedDragging = pointers.size === 1;
+    if (remaining) {
+      state.expandedLastMouseX = remaining.x;
+      state.expandedLastMouseY = remaining.y;
+    } else {
+      wrapper.style.cursor = 'grab';
+    }
+  };
+  wrapper.addEventListener('pointerup', finishPointer);
+  wrapper.addEventListener('pointercancel', finishPointer);
 
   wrapper.addEventListener('wheel', (e: WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    state.expandedScale = Math.max(0.5, Math.min(2, state.expandedScale + delta));
-    expandedAtomContainer.style.transform =
-      `rotateX(${state.expandedRotX}deg) rotateY(${state.expandedRotY}deg) scale(${state.expandedScale})`;
+    state.expandedScale = clampScale(state.expandedScale + delta);
+    updateAtomTransform(
+      expandedAtomContainer,
+      state.expandedRotX,
+      state.expandedRotY,
+      state.expandedScale
+    );
   }, { passive: false });
 
-  wrapper.addEventListener('touchstart', (e: TouchEvent) => {
-    if (e.touches.length === 1) {
-      state.isExpandedDragging = true;
-      state.expandedLastMouseX = e.touches[0].clientX;
-      state.expandedLastMouseY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e: TouchEvent) => {
-    if (!state.isExpandedDragging || !expandedAtomModal.classList.contains('open')) return;
-    const dx = e.touches[0].clientX - state.expandedLastMouseX;
-    const dy = e.touches[0].clientY - state.expandedLastMouseY;
-    state.expandedRotY += dx * 0.8;
-    state.expandedRotX -= dy * 0.8;
-    expandedAtomContainer.style.transform =
-      `rotateX(${state.expandedRotX}deg) rotateY(${state.expandedRotY}deg) scale(${state.expandedScale})`;
-    state.expandedLastMouseX = e.touches[0].clientX;
-    state.expandedLastMouseY = e.touches[0].clientY;
-  }, { passive: true });
-
-  window.addEventListener('touchend', () => { state.isExpandedDragging = false; });
+  wrapper.addEventListener('keydown', event => {
+    const rotationDelta = 10;
+    if (event.key === 'ArrowUp') state.expandedRotX -= rotationDelta;
+    else if (event.key === 'ArrowDown') state.expandedRotX += rotationDelta;
+    else if (event.key === 'ArrowLeft') state.expandedRotY -= rotationDelta;
+    else if (event.key === 'ArrowRight') state.expandedRotY += rotationDelta;
+    else if (event.key === '+' || event.key === '=') {
+      state.expandedScale = clampScale(state.expandedScale + 0.1);
+    } else if (event.key === '-' || event.key === '_') {
+      state.expandedScale = clampScale(state.expandedScale - 0.1);
+    } else if (event.key === 'Home') {
+      state.expandedRotX = 0;
+      state.expandedRotY = 0;
+      state.expandedScale = 1;
+    } else return;
+    event.preventDefault();
+    updateAtomTransform(
+      expandedAtomContainer,
+      state.expandedRotX,
+      state.expandedRotY,
+      state.expandedScale
+    );
+  });
 }
 
 export function openExpandedAtom(): void {
@@ -174,14 +241,31 @@ export function openExpandedAtom(): void {
   const expandedAtomContainer = document.getElementById('expandedAtomContainer')!;
   const expandedAtomModal = document.getElementById('expandedAtomModal')!;
 
+  if (!state.currentElementData) return;
+  if (expandedCleanupTimeout) {
+    clearTimeout(expandedCleanupTimeout);
+    expandedCleanupTimeout = null;
+  }
+  expandedLastFocusedElement = document.activeElement instanceof HTMLElement
+    ? document.activeElement
+    : null;
+
   state.expandedRotX = 0;
   state.expandedRotY = 0;
   state.expandedScale = 1;
-  expandedAtomContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+  updateAtomTransform(expandedAtomContainer, 0, 0, 1);
 
+  document.getElementById('atomContainer')!.getAnimations?.({ subtree: true })
+    .forEach(animation => animation.pause());
   render3DAtom(state.currentElementZ, expandedAtomContainer, 1.8);
   updateExpandedAtomInfo();
+  const modalCard = document.querySelector<HTMLElement>('.hologram-card')!;
+  modalCard.inert = true;
+  modalCard.setAttribute('aria-hidden', 'true');
+  expandedAtomModal.inert = false;
+  expandedAtomModal.setAttribute('aria-hidden', 'false');
   expandedAtomModal.classList.add('open');
+  document.querySelector<HTMLElement>('.expanded-atom-card')!.focus({ preventScroll: true });
 }
 
 export function updateExpandedAtomInfo(): void {
@@ -193,6 +277,8 @@ export function updateExpandedAtomInfo(): void {
   document.getElementById('expanded-symbol')!.style.color = element.cat.color;
   document.getElementById('expanded-name')!.textContent = `${element.name} ${element.enName}`;
   document.getElementById('expanded-hint')!.textContent = t('expanded-hint');
+  document.getElementById('expandedAtomWrapper')!.setAttribute('aria-label', t('expanded-atom-controls'));
+  document.getElementById('expanded-close')!.setAttribute('aria-label', t('close'));
 
   const legendContainer = document.getElementById('expanded-shell-legend')!;
   legendContainer.textContent = '';
@@ -223,6 +309,25 @@ export function updateExpandedAtomInfo(): void {
 export function closeExpandedAtom(): void {
   const expandedAtomModal = document.getElementById('expandedAtomModal')!;
   const expandedAtomContainer = document.getElementById('expandedAtomContainer')!;
+  if (!expandedAtomModal.classList.contains('open')) return;
+
   expandedAtomModal.classList.remove('open');
-  setTimeout(() => { expandedAtomContainer.textContent = ''; }, 300);
+  expandedAtomModal.setAttribute('aria-hidden', 'true');
+  expandedAtomModal.inert = true;
+  const modalCard = document.querySelector<HTMLElement>('.hologram-card')!;
+  modalCard.inert = false;
+  modalCard.setAttribute('aria-hidden', 'false');
+  document.getElementById('atomContainer')!.getAnimations?.({ subtree: true })
+    .forEach(animation => animation.play());
+
+  expandedCleanupTimeout = setTimeout(() => {
+    if (!expandedAtomModal.classList.contains('open')) {
+      cancelAtomAnimations(expandedAtomContainer);
+      expandedAtomContainer.textContent = '';
+    }
+    expandedCleanupTimeout = null;
+  }, 300);
+
+  expandedLastFocusedElement?.focus({ preventScroll: true });
+  expandedLastFocusedElement = null;
 }

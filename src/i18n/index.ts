@@ -9,8 +9,14 @@ const translations: Record<Language, Record<TranslationKey, string>> = { zh, en 
 
 export type { TranslationKey };
 
-export function t(key: TranslationKey): string {
-  return translations[getState().currentLanguage][key] || key;
+export function t(
+  key: TranslationKey,
+  replacements: Record<string, string | number> = {}
+): string {
+  const value = translations[getState().currentLanguage][key] || key;
+  return value.replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in replacements ? String(replacements[name]) : match
+  );
 }
 
 export function getElementName(element: Element): string {

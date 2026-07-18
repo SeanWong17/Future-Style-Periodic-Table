@@ -109,7 +109,7 @@
 
 ```
 Future-Style-Periodic-Table/
-├── public/images/           # 预览截图
+├── images/                  # README 预览截图
 ├── src/                     # 源代码
 │   ├── css/
 │   │   └── styles.css       # 样式文件
@@ -139,7 +139,10 @@ Future-Style-Periodic-Table/
 │   ├── utils/
 │   │   └── dom.ts           # DOM 辅助函数
 │   └── main.ts              # 入口：初始化 + 事件绑定
+├── tests/                   # Vitest DOM 与回归测试
 ├── index.html               # 入口 HTML
+├── eslint.config.js         # ESLint 配置
+├── vitest.config.ts         # 测试配置
 ├── package.json             # 依赖管理
 ├── tsconfig.json            # TypeScript 配置
 ├── vite.config.ts           # Vite 构建配置
@@ -168,13 +171,13 @@ npm install
 npm run dev
 ```
 
-然后访问 `http://localhost:5173/Future-Style-Periodic-Table/`
+然后访问 `http://localhost:5173/`
 
 ### 构建部署
 
 ```bash
-# 生产构建
-npm run build
+# 代码检查、测试与生产构建
+npm run check
 
 # 预览构建结果
 npm run preview

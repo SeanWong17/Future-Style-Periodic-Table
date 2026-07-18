@@ -1,11 +1,13 @@
 import type { Element } from '../types/element';
-import type { Language } from '../types/app';
+import { TabId, VisualizationMode, type Language } from '../types/app';
 
 export interface AppState {
   elements: Element[];
   currentLanguage: Language;
+  currentMode: VisualizationMode;
   currentActiveCategory: number | null;
-  currentTab: string;
+  searchQuery: string;
+  currentTab: TabId;
 
   rotX: number;
   rotY: number;
@@ -32,8 +34,10 @@ export interface AppState {
 const state: AppState = {
   elements: [],
   currentLanguage: 'zh',
+  currentMode: VisualizationMode.Default,
   currentActiveCategory: null,
-  currentTab: 'basic',
+  searchQuery: '',
+  currentTab: TabId.Basic,
 
   rotX: 0,
   rotY: 0,

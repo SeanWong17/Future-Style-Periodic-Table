@@ -13,7 +13,8 @@
     <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
     <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5">
     <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3">
-    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript">
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
+    <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite">
   </p>
 
   <h3>
@@ -78,13 +79,14 @@ The project covers all **118 chemical elements**, including detailed data such a
 
 ## 🛠️ Tech Stack
 
-This project is developed with **Vanilla JavaScript (ES6+)**, zero build dependencies, ready to use out of the box.
+This project is built with **TypeScript + Vite**, using a modular, type-safe architecture.
 
 | Technology | Purpose |
 |:---|:---|
-| **HTML5** | Semantic structure and DOM containers |
-| **CSS3** | Grid/Flexbox layout, 3D Transforms, CSS Variables, Media Queries |
-| **JavaScript** | Data-driven rendering, electron configuration algorithms, event interaction, animation control |
+| **TypeScript** | Type-safe application logic, data processing, and interactions |
+| **Vite** | Development server, production builds, and hot module replacement |
+| **HTML5** | Semantic structure and accessible controls |
+| **CSS3** | Grid/Flexbox layout, 3D transforms, CSS variables, and media queries |
 
 ### Technical Highlights
 
@@ -92,34 +94,35 @@ This project is developed with **Vanilla JavaScript (ES6+)**, zero build depende
 - 🎭 **CSS 3D Transforms**: `transform-style: preserve-3d` to achieve electron orbital rotation.
 - 🎨 **CSS Variables**: Unified theme color management for easy customization.
 - 📱 **Responsive Design**: Multi-breakpoint media queries to adapt to various screen sizes.
-- ⚡ **Performance Optimization**: DOM element caching mechanism reduces 90% of redundant queries, improving interaction responsiveness.
-- 🔧 **Code Quality**: Modular design with extracted utility functions for easy maintenance and extension.
+- 🔒 **Strict TypeScript**: Compile-time checks across application and data types.
+- 🧩 **Modular Design**: Table, modal, atom, heatmap, media, and search behavior are separated by responsibility.
+- ♿ **Accessible Interaction**: Keyboard controls, focus-managed dialogs, and reduced-motion support.
 
 ---
 
 ## 📂 Project Structure
 
-The project adopts a clear modular structure, with all data embedded through JS variables, **no backend environment required**.
+The project uses a modular TypeScript structure and requires no backend service.
 
 ```text
 Future-Style-Periodic-Table/
-├── images/                  # Preview screenshots
-│   ├── overview.png         # Periodic table overview
-│   ├── heatmap.png          # Heatmap mode
-│   ├── detail.png           # Element detail card
-│   └── atom3d.png           # 3D atomic model
-├── src/                     # Source code
+├── images/                  # README screenshots
+├── src/                     # Application source
 │   ├── css/
-│   │   └── styles.css       # Styles (1075 lines)
-│   ├── js/
-│   │   ├── config.js        # Configuration and data processing
-│   │   ├── i18n.js          # Internationalization + utility functions
-│   │   └── main.js          # Main logic (943 lines, optimized)
-│   └── data/
-│       └── elements-full-data.js  # Complete data for 118 elements
+│   │   └── styles.css       # Responsive styles and 3D visuals
+│   ├── config/              # Element categories and electron configuration
+│   ├── data/                # Structured data for all 118 elements
+│   ├── i18n/                # Chinese and English translations
+│   ├── modules/             # Table, filters, modal, media, and atom controls
+│   ├── state/               # Central application state
+│   ├── types/               # Application and element data types
+│   └── main.ts              # Application entry point
+├── tests/                   # Vitest DOM and regression tests
 ├── index.html               # Entry file
-├── .editorconfig            # Editor configuration
-├── .gitignore               # Git ignore rules
+├── eslint.config.js         # Lint configuration
+├── vitest.config.ts         # Test configuration
+├── vite.config.ts           # Build configuration
+├── package.json             # Scripts and dependencies
 ├── README.md                # Chinese documentation
 ├── README_en.md             # English documentation
 └── LICENSE                  # MIT License
@@ -127,40 +130,34 @@ Future-Style-Periodic-Table/
 
 ### Code Organization
 
-- **config.js**: Element categories, electron configuration, data processing functions
-- **i18n.js**: Chinese/English translation dictionaries, language switching, batch update utilities
-- **main.js**: Core business logic including rendering, interaction, 3D models, etc.
-- **elements-full-data.js**: Detailed data for 118 elements (atomic mass, electron configuration, isotopes, etc.)
+- **modules/**: Rendering and interaction logic organized by feature.
+- **state/**: Current language, visualization mode, category, search query, and modal state.
+- **i18n/**: Typed Chinese/English translation dictionaries and helpers.
+- **data/**: Detailed data for all 118 elements, including physical properties and isotopes.
 
 ---
 
 ## 🚀 Quick Start
 
-Thanks to the pure static webpage design, this project has excellent portability:
-
-### Method 1: Direct Open (Recommended)
-1. **Download**: Clone or download the project archive
-   ```bash
-   git clone https://github.com/SeanWong17/Future-Style-Periodic-Table.git
-   ```
-2. **Run**: Open `index.html` directly in a browser
-3. **Note**: No need to install Node.js, no need to configure a local server, ready to use out of the box
-
-### Method 2: Local Server (Optional)
-If you want to run through a local server (e.g., for testing or development):
+Node.js 18.18 or newer is required for local development.
 
 ```bash
-# Python 3
-python -m http.server 8000
-
-# Python 2
-python -m SimpleHTTPServer 8000
-
-# Node.js (requires http-server to be installed first)
-npx http-server -p 8000
+git clone https://github.com/SeanWong17/Future-Style-Periodic-Table.git
+cd Future-Style-Periodic-Table
+npm install
+npm run dev
 ```
 
-Then visit `http://localhost:8000`
+Open `http://localhost:5173/` in your browser.
+
+### Quality checks and production build
+
+```bash
+npm run check
+npm run preview
+```
+
+Pushing to `main` runs the quality checks and deploys the generated `dist/` directory to GitHub Pages.
 
 ### Browser Compatibility
 - ✅ Chrome 90+

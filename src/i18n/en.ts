@@ -1,6 +1,7 @@
 import type { TranslationKey } from './zh';
 
 const en: Record<TranslationKey, string> = {
+  'page-title': 'Periodic Table | The 5% of the Universe',
   'periodic-table-title': 'Periodic Table',
   'standard': 'Standard',
   'radius': 'Radius',
@@ -10,6 +11,20 @@ const en: Record<TranslationKey, string> = {
   'boiling-point': 'Boiling Pt',
   'density': 'Density',
   'search-placeholder': 'Search elements...',
+  'search-label': 'Search elements',
+  'mode-label': 'Visualization mode',
+  'language-label': 'Language',
+  'legend-label': 'Filter by element category',
+  'table-label': 'Periodic table of elements',
+  'tab-list-label': 'Element detail sections',
+  'close': 'Close',
+  'expand-atom': 'Expand atom model',
+  'atom-controls': 'Atom model. Use arrow keys to rotate',
+  'expanded-atom-controls': 'Expanded atom model. Use arrow keys to rotate, plus and minus to zoom, or pinch to zoom',
+  'github-link': 'View project on GitHub',
+  'element-button-label': 'View {name}, symbol {symbol}, atomic number {number}',
+  'element-image-alt': 'Photograph of {name}',
+  'bohr-image-alt': 'Bohr model of {name}',
   'rotate-hint': '💡 Better view in landscape',
   'drag-rotate': 'Drag to rotate',
   'expanded-hint': 'Drag to rotate · Scroll to zoom',

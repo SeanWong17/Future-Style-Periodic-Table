@@ -20,6 +20,7 @@ npm-debug.log*
 # 临时文件
 *.tmp
 .cache/
+.codegraph/
 
 # 构建输出（如果将来添加构建工具）
 dist/

@@ -27,6 +27,32 @@ body {
     overflow-x: hidden;
 }
 
+.app-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 3px;
+}
+
 .bg-animation {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
@@ -157,6 +183,12 @@ body {
     font-size: 14px;
 }
 
+.search-box input:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+    border-color: var(--accent-cyan);
+}
+
 /* === 周期表容器 === */
 .table-wrapper {
     width: 100%;
@@ -191,9 +223,12 @@ body {
     opacity: 0;
     transform: scale(0.8);
     will-change: transform, opacity;
+    color: inherit;
+    font: inherit;
+    text-align: center;
 }
 
-.element.visible { opacity: 1; transform: scale(1); will-change: auto; }
+.element.visible { opacity: var(--element-opacity, 1); transform: scale(1); will-change: auto; }
 
 .element:hover {
     transform: scale(1.15) !important;
@@ -291,6 +326,8 @@ body {
     cursor: pointer;
     border: 1px solid transparent;
     transition: 0.3s;
+    color: inherit;
+    font-family: inherit;
 }
 
 .legend-item:hover { background: rgba(255,255,255,0.1); }
@@ -309,11 +346,19 @@ body {
     backdrop-filter: blur(8px);
     z-index: 1000;
     display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0s linear 0.3s;
     padding: 10px;
     contain: layout style;
 }
-.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transition-delay: 0s;
+}
 
 .hologram-card {
     width: 100%;
@@ -345,6 +390,8 @@ body {
     justify-content: center;
     border: 1px solid rgba(255,255,255,0.1);
     transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
 }
 .close-btn:hover {
     background: rgba(255, 0, 0, 0.8);
@@ -363,6 +410,7 @@ body {
     position: relative;
     cursor: grab;
     user-select: none;
+    touch-action: none;
 }
 
 .atom-visualizer:active { cursor: grabbing; }
@@ -584,6 +632,10 @@ body {
 
 .tab-pane.active {
     display: block;
+}
+
+.tab-pane[hidden] {
+    display: none;
 }
 
 /* === 信息区块 === */
@@ -883,13 +935,16 @@ body {
     justify-content: center;
     align-items: center;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s, visibility 0s linear 0.3s;
 }
 
 .expanded-atom-overlay.open {
     opacity: 1;
+    visibility: visible;
     pointer-events: all;
+    transition-delay: 0s;
 }
 
 .expanded-atom-card {
@@ -939,6 +994,7 @@ body {
     background: radial-gradient(circle at center, rgba(0, 243, 255, 0.03), transparent 60%);
     position: relative;
     overflow: hidden;
+    touch-action: none;
 }
 
 .expanded-atom-wrapper:active { cursor: grabbing; }
@@ -1213,4 +1269,15 @@ body {
         border-radius: 0;
     }
     .expanded-atom-container { width: 300px; height: 300px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
 }
