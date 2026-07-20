@@ -159,6 +159,22 @@ npm run preview
 
 Pushing to `main` runs the quality checks and deploys the generated `dist/` directory to GitHub Pages.
 
+### Quick deployment with Docker
+
+```bash
+# Build the production image
+docker build -t future-style-periodic-table .
+
+# Run it in the background and expose it on port 8080
+docker run -d \
+  --name future-style-periodic-table \
+  --restart unless-stopped \
+  -p 8080:80 \
+  future-style-periodic-table
+```
+
+Open `http://localhost:8080/` after the container starts. To update the app, rebuild the image and replace the container.
+
 ### Browser Compatibility
 - ✅ Chrome 90+
 - ✅ Firefox 88+

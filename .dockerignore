@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+.editorconfig
+.DS_Store
+node_modules
+dist
+build
+.cache
+.codegraph
+*.log
+README.md
+README_en.md
+LICENSE
+images
