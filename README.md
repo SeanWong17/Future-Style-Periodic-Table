@@ -185,6 +185,22 @@ npm run preview
 
 推送到 `main` 分支会通过 GitHub Actions 自动部署到 GitHub Pages。
 
+### Docker 快捷部署
+
+```bash
+# 构建生产镜像
+docker build -t future-style-periodic-table .
+
+# 后台启动，并在主机的 8080 端口提供服务
+docker run -d \
+  --name future-style-periodic-table \
+  --restart unless-stopped \
+  -p 8080:80 \
+  future-style-periodic-table
+```
+
+启动后访问 `http://localhost:8080/`。更新版本时，重新构建镜像并替换容器即可。
+
 ### 浏览器兼容性
 - ✅ Chrome 90+
 - ✅ Firefox 88+
