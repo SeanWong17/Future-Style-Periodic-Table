@@ -215,7 +215,7 @@ This project uses the [MIT License](LICENSE) open source license.
 
 ## 📈 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=SeanWong17/Future-Style-Periodic-Table&type=Date)](https://star-history.com/#SeanWong17/Future-Style-Periodic-Table&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=SeanWong17/Future-Style-Periodic-Table&type=Date)](https://star-history.dera.page/#SeanWong17/Future-Style-Periodic-Table&Date)
 
 ---
 <div align="center">
