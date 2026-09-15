@@ -9,6 +9,7 @@ export function formatValue(val: number | string | null | undefined, fallback = 
     return fallback;
   }
   if (typeof val === 'number') {
+    if (Math.abs(val) < 0.01) return String(Number(val.toPrecision(4)));
     return Number.isInteger(val) ? String(val) : val.toFixed(4).replace(/\.?0+$/, '');
   }
   return String(val);

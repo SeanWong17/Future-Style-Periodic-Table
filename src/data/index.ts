@@ -24,7 +24,8 @@ export function processElementsData(): Element[] {
       ypos: e.ypos,
 
       radius: e.radius || 0,
-      density: e.density || 0,
+      // Source gas densities are in g/L; normalize all densities to g/cm3.
+      density: (e.density ?? 0) / (e.phase_en === 'Gas' ? 1000 : 1),
       melt: e.melt || 0,
       boil: e.boil || 0,
       molarHeat: e.molar_heat || 0,
