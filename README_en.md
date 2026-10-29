@@ -7,9 +7,6 @@
   </p>
 
   <p>
-    <a href="https://github.com/ruanyf/weekly/blob/master/docs/issue-383.md">
-        <img src="https://img.shields.io/badge/Tech%20Enthusiast%20Weekly-Issue%20383%20Featured-ff69b4?style=flat-square&logo=rss" alt="Tech Enthusiast Weekly">
-    </a>
     <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
     <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5">
     <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3">
@@ -17,9 +14,24 @@
     <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite">
   </p>
 
-  <p>
-    <a href="https://hellogithub.com/repository/SeanWong17/Future-Style-Periodic-Table" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=9bbe189fc321427bbd09b65638ec80d8&claim_uid=tj5HxC34UsZ1ckg" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-  </p>
+  <h4>🌟 Community Recommendations</h4>
+
+  <table>
+    <tr>
+      <th>Tech Enthusiast Weekly · Issue 383</th>
+      <th>HelloGitHub · Issue 127</th>
+    </tr>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://github.com/ruanyf/weekly/blob/master/docs/issue-383.md">
+          <img src="https://img.shields.io/badge/Tech%20Enthusiast%20Weekly-Issue%20383%20Featured-ff69b4?style=flat-square&logo=rss" alt="Tech Enthusiast Weekly">
+        </a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://hellogithub.com/repository/SeanWong17/Future-Style-Periodic-Table" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=9bbe189fc321427bbd09b65638ec80d8&claim_uid=tj5HxC34UsZ1ckg" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+      </td>
+    </tr>
+  </table>
 
   <h3>
     👉 <a href="https://seanwong17.github.io/Future-Style-Periodic-Table/">Click to Enter: Immersive Experience (Live Demo)</a> 👈
@@ -146,7 +158,7 @@ Future-Style-Periodic-Table/
 
 ## 🚀 Quick Start
 
-Node.js 18.18 or newer is required for local development.
+Node.js 20.x, 22.x, or 24 and newer is required for local development. Node.js 22 LTS is recommended.
 
 ```bash
 git clone https://github.com/SeanWong17/Future-Style-Periodic-Table.git

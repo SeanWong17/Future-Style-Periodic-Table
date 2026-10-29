@@ -7,9 +7,6 @@
   </p>
 
   <p>
-    <a href="https://github.com/ruanyf/weekly/blob/master/docs/issue-383.md">
-        <img src="https://img.shields.io/badge/科技爱好者周刊-第383期推荐-ff69b4?style=flat-square&logo=rss" alt="Tech Enthusiast Weekly">
-    </a>
     <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
     <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
     <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite">
@@ -17,9 +14,24 @@
     <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3">
   </p>
 
-  <p>
-    <a href="https://hellogithub.com/repository/SeanWong17/Future-Style-Periodic-Table" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=9bbe189fc321427bbd09b65638ec80d8&claim_uid=tj5HxC34UsZ1ckg" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-  </p>
+  <h4>🌟 社区推荐</h4>
+
+  <table>
+    <tr>
+      <th>科技爱好者周刊 · 第 383 期</th>
+      <th>HelloGitHub · 第 127 期</th>
+    </tr>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://github.com/ruanyf/weekly/blob/master/docs/issue-383.md">
+          <img src="https://img.shields.io/badge/科技爱好者周刊-第383期推荐-ff69b4?style=flat-square&logo=rss" alt="Tech Enthusiast Weekly">
+        </a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://hellogithub.com/repository/SeanWong17/Future-Style-Periodic-Table" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=9bbe189fc321427bbd09b65638ec80d8&claim_uid=tj5HxC34UsZ1ckg" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+      </td>
+    </tr>
+  </table>
 
   <h3>
     👉 <a href="https://seanwong17.github.io/Future-Style-Periodic-Table/">点击进入：沉浸式体验 (Live Demo)</a> 👈
@@ -165,6 +177,8 @@ Future-Style-Periodic-Table/
 ## 🚀 快速开始 (How to Run)
 
 ### 开发环境
+
+需要 Node.js 20.x、22.x 或 24 及以上版本，推荐使用 Node.js 22 LTS。
 
 ```bash
 # 克隆项目
