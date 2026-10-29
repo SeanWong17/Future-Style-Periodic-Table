@@ -17,6 +17,10 @@
     <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite">
   </p>
 
+  <p>
+    <a href="https://hellogithub.com/repository/SeanWong17/Future-Style-Periodic-Table" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=9bbe189fc321427bbd09b65638ec80d8&claim_uid=tj5HxC34UsZ1ckg" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+  </p>
+
   <h3>
     👉 <a href="https://seanwong17.github.io/Future-Style-Periodic-Table/">Click to Enter: Immersive Experience (Live Demo)</a> 👈
   </h3>
